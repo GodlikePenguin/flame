@@ -115,15 +115,7 @@ const useDocker = async (apps) => {
         const icons = labels['flame.icon'] ? labels['flame.icon'].split(';') : [];
 
         for (let i = 0; i < names.length; i++) {     
-          let category = categoriesLabels[i] ? categories.find(category => category.name.toUpperCase() === categoriesLabels[i].toUpperCase()) : dockerDefaultCategory;
-          if (!category) {
-            category = await createNewCategory(categoriesLabels[i]);
-            if (category) {
-              categories.push(category);
-            } else {
-              category = dockerDefaultCategory;
-            }
-          }
+          let category = await getOrCreateCategory(categories, categoriesLabels[i] || '', dockerDefaultCategory);
 
           dockerApps.push({
             name: names[i] || names[0],
@@ -132,6 +124,37 @@ const useDocker = async (apps) => {
             categoryId: category.id,
             orderId: orders[i] || 500,
           });
+        }
+      }
+
+      if (
+        'flame.name' in labels &&
+        'flame.urlMapping' in labels &&
+        /^app/.test(labels['flame.type'])
+      ) {
+        const urlMapping = labels['flame.name'].split(';');
+        if (urlMapping.length % 2 != 0) {
+          console.log('urlMapping label must be a list of pairs');
+          continue;
+        }
+        const name = labels['flame.name'];
+        const icon = labels['flame.icon'] || 'docker';
+        const category = await getOrCreateCategory(categories, labels['flame.category'], dockerDefaultCategory);
+        const order = labels['flame.order'] || 500;
+
+        for (let i = 0; i < urlMapping.length; i+=2) {
+          const domainMatch = urlMapping[i];
+          const url = urlMapping[i+1];
+
+          if (new RegExp(domainMatch).test(window.location.host)) {
+            dockerApps.push({
+              name: name,
+              url: url,
+              icon: icon,
+              categoryId: category.id,
+              orderId: order
+            })
+          }
         }
       }
     }
@@ -182,6 +205,18 @@ async function createNewCategory(newCategoryName) {
     isPinned: true,
     orderId: Number.MAX_SAFE_INTEGER //New category will always be last and can then be re-ordered manually by user
   });
+}
+
+async function getOrCreateCategory(categories, categoryLabel, defaultCategory) {
+  let category = categoryLabel ? categories.find(category => category.name.toUpperCase() === categoryLabel.toUpperCase()) : defaultCategory;
+  if (!category) {
+    category = await createNewCategory(categoriesLabels[i]);
+    if (category) {
+      categories.push(category);
+    } else {
+      category = dockerDefaultCategory;
+    }
+  }
 }
 
 module.exports = useDocker;
