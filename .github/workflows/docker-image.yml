@@ -47,4 +47,4 @@ jobs:
           file: ./.docker/Dockerfile.multiarch
           push: true
           tags: ${{ steps.prep.outputs.tags }}
-          platforms: linux/amd64,linux/arm/v8
+          platforms: linux/amd64,linux/arm64
