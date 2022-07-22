@@ -27,7 +27,7 @@ export const urlParser = (url: string): string[] => {
 /* eslint-disable no-restricted-globals */
 const performReplacements = (url: string): string => {
   return url
-    .replace('$host', location.host)
     .replace('$hostname', location.hostname)
+    .replace('$host', location.host)
     .replace('$port', location.port);
 };
