@@ -28,7 +28,6 @@
   font-size: 1em;
   font-weight: 500;
   color: var(--color-primary);
-  margin-bottom: -10px;
 }
 
 .AppCardDetails span {
@@ -47,11 +46,11 @@
 }
 
 .Apps a {
-  line-height: 2;
   transition: all 0.25s;
   display: flex;
   width: 100%;
   align-items: center;
+  margin-bottom: 10px;
 }
 
 .Apps a:hover {
